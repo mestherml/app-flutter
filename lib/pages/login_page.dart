@@ -118,6 +118,7 @@ Widget inputPassword() {
 }*/
 
 import 'package:flutter/material.dart';
+import 'package:izzi_app/routes/pages.dart';
 import 'package:izzi_app/routes/routes.dart';
 import '../services/app_service.dart';
 
@@ -185,7 +186,7 @@ class _LoginPageState extends State<LoginPage> {
                 decoration: InputDecoration(
                   hintText: 'Password',
                   labelText: 'Password',
-                  //prefixIcon: const Icon(Icons.lock_outline),
+                  prefixIcon: const Icon(Icons.lock_outline),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _passwordVisible
@@ -200,7 +201,6 @@ class _LoginPageState extends State<LoginPage> {
                       });
                     },
                   ),
-
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.0)),
                   constraints: const BoxConstraints(
@@ -218,7 +218,7 @@ class _LoginPageState extends State<LoginPage> {
                   onPressed: () {
                     dataBaseHelper.addProduct(nombreController.text.trim(),
                         passwordController.text.trim());
-                    Navigator.pushNamed(context, Routes.HomePage);
+                    Navigator.pushNamed(context, '/homepage');
                   },
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(

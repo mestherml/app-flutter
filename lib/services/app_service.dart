@@ -1,11 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+//import 'package:localstorage/localstorage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 import '../model/technical.dart';
-
-//import 'package:shared_preferences/shared_preferences.dart';
 
 import '../environment/environment.dart';
 
@@ -29,7 +27,8 @@ class LoginService {
         headers: {"Content-Type": "application/json"},
         body: body);
 
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    /*final LocalStorage storage = LocalStorage('my_app_session');*/
 
     print(response.statusCode);
     print(response.body);
@@ -38,8 +37,11 @@ class LoginService {
         var usuario = response.body;
         final responseModel = Technical.fromJson(usuario);
 
-        SharedPreferences pref = await SharedPreferences.getInstance();
-        await pref.setString("token", responseModel.tokenDeAcceso);
+        pref.setString("token", responseModel.tokenDeAcceso);
+        pref.setString("User", responseModel.tecnico.technicalName);
+
+        /*await storage.setItem("token", responseModel.tokenDeAcceso);
+        print(storage.setItem("token", responseModel.tokenDeAcceso));*/
 
         print("usuario: " + usuario.toString());
         //print('responseModel.tokenDeAcceso ${responseModel.tokenDeAcceso}');

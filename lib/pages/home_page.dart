@@ -1,9 +1,13 @@
+// ignore_for_file: unnecessary_brace_in_string_interps
+
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:izzi_app/pages/login_page.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../pages/login_page.dart';
 import '../options_ruta.dart';
+import '../services/app_logout.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,20 +17,110 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  late SharedPreferences sharedPreferences;
   String token = "";
+  String user = "";
+  final now = DateTime.now();
+  String nombreMes = '';
+  String nombreDia = '';
+  late final diaActual = now.day;
+  late final fechaActual = '${nombreDia} ${diaActual}, ${nombreMes}';
+
+  int index = 0;
 
   @override
   void initState() {
     super.initState();
+    checkLogin();
+    nomMes();
+    nomDia();
+  }
+
+  nomDia() {
+    num dia = now.weekday;
+    switch (dia) {
+      case 1:
+        nombreDia = "Lunes";
+        break;
+      case 2:
+        nombreDia = "Martes";
+        break;
+      case 3:
+        nombreDia = "Miercoles";
+        break;
+      case 4:
+        nombreDia = "Jueves";
+        break;
+      case 5:
+        nombreDia = "Viernes";
+        break;
+      case 6:
+        nombreDia = "Sabado";
+        break;
+      case 7:
+        nombreDia = "Domingo";
+        break;
+      default:
+        nombreDia = "Invalid day";
+    }
+    print(nombreDia);
+  }
+
+  nomMes() {
+    num mes = now.month;
+    switch (mes) {
+      case 1:
+        nombreMes = "Ene";
+        break;
+      case 2:
+        nombreMes = "Feb";
+        break;
+      case 3:
+        nombreMes = "Mar";
+        break;
+      case 4:
+        nombreMes = "Abr";
+        break;
+      case 5:
+        nombreMes = "May";
+        break;
+      case 6:
+        nombreMes = "Jun";
+        break;
+      case 7:
+        nombreMes = "Jul";
+        break;
+      case 8:
+        nombreMes = "Ago";
+        break;
+      case 9:
+        nombreMes = "Sep";
+        break;
+      case 10:
+        nombreMes = "Oct";
+        break;
+      case 11:
+        nombreMes = "Nov";
+        break;
+      case 12:
+        nombreMes = "Dic";
+        break;
+      default:
+        nombreMes = "Invalid month";
+        break;
+    }
+
+    print(nombreMes);
   }
 
   checkLogin() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    String? val = pref.getString('token');
-    if (val != null) {
-      // ignore: use_build_context_synchronously
-      Navigator.push(
-          context, MaterialPageRoute(builder: (contex) => const HomePage()));
+    sharedPreferences = await SharedPreferences.getInstance();
+    user = sharedPreferences.getString("User")!;
+
+    if (sharedPreferences.getString("token") == null) {
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (BuildContext context) => LoginPage()),
+          (Route<dynamic> route) => false);
     }
   }
 
@@ -50,7 +144,7 @@ class _HomePageState extends State<HomePage> {
             ),
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height / 2.3,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
             child: Column(
               children: [
                 Row(
@@ -60,15 +154,22 @@ class _HomePageState extends State<HomePage> {
                     IconButton(
                       icon: const Icon(Icons.logout_outlined),
                       color: Colors.white,
-                      onPressed: () async {
-                        SharedPreferences pref =
-                            await SharedPreferences.getInstance();
-                        await pref.clear();
+                      onPressed: () {
+                        sharedPreferences.clear();
+                        sharedPreferences.remove("token");
+                        LogoutService().logoutUser(token.trim());
+                        Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                                builder: (BuildContext context) => LoginPage()),
+                            (Route<dynamic> route) => false);
+                      },
+                      /*onPressed: () async {
                         // ignore: use_build_context_synchronously
                         Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(builder: (contex) => LoginPage()),
+                            MaterialPageRoute(
+                                builder: (contex) => const LoginPage()),
                             (route) => false);
-                      },
+                      },*/
                     ),
                   ],
                 ),
@@ -80,10 +181,10 @@ class _HomePageState extends State<HomePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: const <Widget>[
                           CircleAvatar(
-                            minRadius: 50.0,
-                            maxRadius: 50.0,
+                            minRadius: 47.0,
+                            maxRadius: 47.0,
                             backgroundColor: Colors.transparent,
-                            backgroundImage: AssetImage('assets/sin-foto.png'),
+                            backgroundImage: AssetImage('assets/tecnico.png'),
                           ),
                         ],
                       ),
@@ -96,12 +197,11 @@ class _HomePageState extends State<HomePage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       // ignore: prefer_const_literals_to_create_immutables
                       children: [
-                        const Text(
+                        Text(
                           'Hola!',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.normal),
+                          style: GoogleFonts.poppins(
+                              textStyle: const TextStyle(
+                                  color: Colors.white, fontSize: 18)),
                           textAlign: TextAlign.left,
                         ),
                       ],
@@ -112,28 +212,28 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   // ignore: prefer_const_literals_to_create_immutables
                   children: [
-                    const Text(
-                      'Marco Reyes',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 25,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    Text(
+                      user,
+                      style: GoogleFonts.poppins(
+                          textStyle: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 25,
+                              fontWeight: FontWeight.w500)),
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: const [
-                        Icon(
+                      children: [
+                        const Icon(
                           BootstrapIcons.calendar2_date_fill,
                           size: 18,
                           color: Colors.white,
                         ),
-                        SizedBox(
+                        const SizedBox(
                           width: 5,
                         ),
                         Text(
-                          'Lunes 24, Jul',
-                          style: TextStyle(
+                          fechaActual,
+                          style: const TextStyle(
                               color: Colors.white70,
                               fontSize: 18,
                               fontWeight: FontWeight.normal),
@@ -150,7 +250,17 @@ class _HomePageState extends State<HomePage> {
                     height: 58.0,
                     width: 214.0,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/detailTechPage',
+                            arguments: {'fecha': fechaActual, 'user': user});
+                        /*sharedPreferences.clear();
+                        sharedPreferences.remove("token");
+                        LogoutService().logoutUser(token.trim());*/
+                        /*Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                                builder: (BuildContext context) => LoginPage()),
+                            (Route<dynamic> route) => false);*/
+                      },
                       style: ElevatedButton.styleFrom(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15),
@@ -203,40 +313,8 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-          bottomNavigationBar(),
         ],
       ),
     );
-  }
-
-  Widget bottomNavigationBar() {
-    return BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color.fromRGBO(244, 126, 39, 100),
-        unselectedItemColor: Colors.grey,
-        selectedFontSize: 14,
-        unselectedFontSize: 14,
-        items: const [
-          BottomNavigationBarItem(
-              icon: Icon(BootstrapIcons.house_door_fill),
-              label: 'Home',
-              backgroundColor: Colors.grey),
-          BottomNavigationBarItem(
-              icon: Icon(BootstrapIcons.bell_fill),
-              label: 'Notificaciones',
-              backgroundColor: Colors.grey),
-          BottomNavigationBarItem(
-              icon: Icon(BootstrapIcons.search),
-              label: 'Buscar',
-              backgroundColor: Colors.grey),
-          BottomNavigationBarItem(
-              icon: Icon(BootstrapIcons.chat_left_fill),
-              label: 'Mensajes',
-              backgroundColor: Colors.grey),
-          BottomNavigationBarItem(
-              icon: Icon(BootstrapIcons.gear_fill),
-              label: 'Configuracion',
-              backgroundColor: Colors.grey),
-        ]);
   }
 }
